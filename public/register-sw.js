@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/daily-shot/sw.js',{scope:'/daily-shot/'}).catch(console.error));}
