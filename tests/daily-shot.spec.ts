@@ -123,8 +123,10 @@ test("Explore wraps endlessly and keeps image loading optimized", async ({ page 
 
   const index = page.locator(".explore-index");
   const startingIndex = await index.textContent();
+  const total = Number((startingIndex || "").split("/")[1]?.trim());
 
-  for (let i = 0; i < 7; i += 1) {
+  expect(total).toBeGreaterThanOrEqual(14);
+  for (let i = 0; i < total; i += 1) {
     await page.getByRole("button", { name: "Next photograph" }).click();
   }
   await expect(index).toHaveText(startingIndex || "");
