@@ -12,31 +12,24 @@ export type DailyPhotograph = {
   imageUrl: string;
 };
 
-const FALLBACK_IIIF_URL = "https://www.artic.edu/iiif/2";
+// AIC's IIIF host can currently return a Cloudflare challenge to third-party
+// image requests. Keep the provider contract, but use a curated public-domain
+// image URL that is reliable in browsers until direct IIIF delivery is stable.
+const CURATED_DAILY: DailyPhotograph[] = [
+  {
+    artwork: {
+      id: 1,
+      title: "Migrant Mother, Nipomo, California",
+      artist_title: "Dorothea Lange",
+      date_display: "1936",
+      image_id: "commons-migrant-mother",
+      medium_display: "Photograph"
+    },
+    imageUrl: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Lange-MigrantMother02.jpg?width=1200"
+  }
+];
 
 export async function getDailyPhotograph(): Promise<DailyPhotograph | null> {
-  const params = encodeURIComponent(JSON.stringify({
-    query: { bool: { must: [
-      { term: { is_public_domain: true } },
-      { exists: { field: "image_id" } }
-    ], filter: [{ match: { artwork_type_title: "Photograph" } }] } },
-    fields: ["id", "title", "artist_title", "date_display", "image_id", "medium_display"],
-    limit: 40
-  }));
-
-  const response = await fetch(`https://api.artic.edu/api/v1/artworks/search?params=${params}`);
-  if (!response.ok) return null;
-
-  const json = await response.json();
-  const items: Artwork[] = (json.data ?? []).filter((item: Artwork) => Boolean(item.image_id));
-  if (!items.length) return null;
-
   const day = Math.floor(Date.now() / 86400000);
-  const artwork = items[day % items.length];
-  const iiifUrl = json.config?.iiif_url || FALLBACK_IIIF_URL;
-
-  return {
-    artwork,
-    imageUrl: `${iiifUrl}/${artwork.image_id}/full/843,/0/default.jpg`
-  };
+  return CURATED_DAILY[day % CURATED_DAILY.length];
 }
