@@ -52,10 +52,11 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1936",
     location: "Hale County, Alabama",
     imageUrls: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Allie_Mae_Burroughs.jpg/960px-Allie_Mae_Burroughs.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c52000/8c52200/8c52248v.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c52000/8c52200/8c52248r.jpg",
       "https://upload.wikimedia.org/wikipedia/commons/c/c5/Allie_Mae_Burroughs.jpg"
     ],
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Allie_Mae_Burroughs.jpg",
+    sourceUrl: "https://www.loc.gov/item/2017762301/",
     credit: "Library of Congress · FSA/OWI · Public domain",
     lessonId: "framing"
   },
