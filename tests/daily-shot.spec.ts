@@ -113,3 +113,24 @@ test("journal shortcut opens the journal directly", async ({ page }) => {
   await expect(page.locator(".journal-title h1")).toContainText("Learning");
   await expect(page.locator(".rhythm-card")).toBeVisible();
 });
+
+
+test("Explore wraps endlessly and keeps image loading optimized", async ({ page }) => {
+  await page.getByRole("button", { name: "Explore", exact: true }).click();
+  await expect(page.locator(".explore-view")).toBeVisible();
+  await expect(page.locator(".explore-photo")).toHaveAttribute("fetchpriority", "high");
+  await expect(page.locator('link[rel="preconnect"][href="https://tile.loc.gov"]')).toHaveCount(1);
+
+  const index = page.locator(".explore-index");
+  const startingIndex = await index.textContent();
+
+  for (let i = 0; i < 7; i += 1) {
+    await page.getByRole("button", { name: "Next photograph" }).click();
+  }
+  await expect(index).toHaveText(startingIndex || "");
+
+  await page.keyboard.press("ArrowRight");
+  await expect(index).not.toHaveText(startingIndex || "");
+  await page.keyboard.press("ArrowLeft");
+  await expect(index).toHaveText(startingIndex || "");
+});
