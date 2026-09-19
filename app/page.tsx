@@ -123,6 +123,9 @@ export default function Home() {
     setTheme(initialTheme);
     document.documentElement.dataset.theme = initialTheme;
 
+    const requestedTab = new URLSearchParams(window.location.search).get("tab");
+    if (requestedTab === "journal") setTab("journal");
+
     const items = readJournal();
     setJournal(items);
     setNote(items.find((entry) => entry.date === today.dateKey)?.note || "");
