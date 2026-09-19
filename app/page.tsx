@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
-import { getDailyPhotograph, localDateKey } from "../lib/artic";
+import { CURATED_PHOTOGRAPHS, getDailyPhotograph, localDateKey } from "../lib/artic";
 import { getLesson } from "../lib/content";
 import { Locale, UI, localizeLesson } from "../lib/i18n";
 import { loadPracticeShot, removePracticeShot, savePracticeShot } from "../lib/vault";
@@ -12,6 +12,7 @@ type FocusPoint = { x:number; y:number };
 type JournalEntry = { date:string; artwork:string; artist:string; concept:string; note:string; shot?:boolean };
 
 const JOURNAL_KEY = "daily-shot:journal:v2";
+const mod = (value:number, length:number) => ((value % length) + length) % length;
 const EXTRA = {
   en: {
     study:"STUDY THE FRAME", clean:"Clean", thirds:"Thirds", mono:"B&W", squint:"Squint",
@@ -19,7 +20,7 @@ const EXTRA = {
     share:"Share", copied:"Copied", fieldProof:"YOUR FRAME", localOnly:"Private · stored only on this device", addShot:"Take / add your shot", replaceShot:"Replace shot", removeShot:"Remove",
     shotHelp:"Attach one frame from today’s assignment. It stays on this device and appears in your journal.", shotError:"Couldn’t save this image on the device.",
     rhythm:"7-DAY RHYTHM", thisWeek:"this week", yourShot:"Your practice frame", noNote:"No note yet", shareText:"Today’s Daily Shot",
-    captured:"Observation captured", glance:"Tap where your eye landed first", glanceDone:"First glance saved · tap again to move it"
+    captured:"Observation captured", glance:"Tap where your eye landed first", glanceDone:"First glance saved · tap again to move it", explore:"Explore", exploreHint:"Swipe through the archive", archive:"MASTER ARCHIVE", swipe:"Swipe · use ← →", loadingNext:"Loading photograph"
   },
   zh: {
     study:"觀看工具", clean:"原圖", thirds:"三分線", mono:"黑白", squint:"瞇眼看",
@@ -27,7 +28,7 @@ const EXTRA = {
     share:"分享", copied:"已複製", fieldProof:"你的畫面", localOnly:"私密 · 只儲存在這台裝置", addShot:"拍攝 / 加入你的照片", replaceShot:"更換照片", removeShot:"移除",
     shotHelp:"把今天作業的一張照片放進來。照片只存在這台裝置，並會出現在學習日誌。", shotError:"無法在這台裝置上儲存照片。",
     rhythm:"7 日節奏", thisWeek:"本週完成", yourShot:"你的練習作品", noNote:"還沒有筆記", shareText:"今天的 Daily Shot",
-    captured:"已記下第一眼觀察", glance:"點一下你第一眼被吸住的位置", glanceDone:"第一眼已記下 · 再點可調整"
+    captured:"已記下第一眼觀察", glance:"點一下你第一眼被吸住的位置", glanceDone:"第一眼已記下 · 再點可調整", explore:"探索", exploreHint:"左右滑動瀏覽名作", archive:"名作探索", swipe:"左右滑 · 也可用 ← →", loadingNext:"正在載入作品"
   }
 } as const;
 
@@ -83,7 +84,7 @@ export default function Home() {
   const baseLesson = useMemo(() => getLesson(today.artwork.lessonId), [today.artwork.lessonId]);
   const [locale, setLocale] = useState<Locale>("zh");
   const [theme, setTheme] = useState<Theme>("light");
-  const [tab, setTab] = useState<"today" | "journal">("today");
+  const [tab, setTab] = useState<"today" | "explore" | "journal">("today");
   const [revealed, setRevealed] = useState(false);
   const [revealedNote, setRevealedNote] = useState("");
   const [imageIndex, setImageIndex] = useState(0);
@@ -98,6 +99,11 @@ export default function Home() {
   const [shotError, setShotError] = useState(false);
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
   const [focusPoint, setFocusPoint] = useState<FocusPoint | null>(null);
+  const [exploreCursor, setExploreCursor] = useState(today.index);
+  const [exploreSourceIndex, setExploreSourceIndex] = useState(0);
+  const [exploreLoaded, setExploreLoaded] = useState(false);
+  const [exploreFailed, setExploreFailed] = useState(false);
+  const exploreTouchStart = useRef<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const practiceObjectUrl = useRef("");
   const t = UI[locale];
@@ -125,6 +131,7 @@ export default function Home() {
 
     const requestedTab = new URLSearchParams(window.location.search).get("tab");
     if (requestedTab === "journal") setTab("journal");
+    if (requestedTab === "explore") setTab("explore");
 
     const items = readJournal();
     setJournal(items);
@@ -168,6 +175,11 @@ export default function Home() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement) return;
+      if (tab === "explore") {
+        if (event.key === "ArrowRight") setExploreCursor((value) => value + 1);
+        if (event.key === "ArrowLeft") setExploreCursor((value) => value - 1);
+        return;
+      }
       if (event.key.toLowerCase() === "g") setStudyMode("thirds");
       if (event.key.toLowerCase() === "b") setStudyMode("mono");
       if (event.key.toLowerCase() === "s") setStudyMode("squint");
@@ -175,7 +187,36 @@ export default function Home() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [tab]);
+
+  const exploreArtwork = CURATED_PHOTOGRAPHS[mod(exploreCursor, CURATED_PHOTOGRAPHS.length)];
+
+  useEffect(() => {
+    setExploreSourceIndex(0);
+    setExploreLoaded(false);
+    setExploreFailed(false);
+    const neighborIndexes = [
+      mod(exploreCursor + 1, CURATED_PHOTOGRAPHS.length),
+      mod(exploreCursor - 1, CURATED_PHOTOGRAPHS.length),
+    ];
+    for (const index of neighborIndexes) {
+      const url = CURATED_PHOTOGRAPHS[index]?.imageUrls[0];
+      if (!url) continue;
+      const image = new Image();
+      image.decoding = "async";
+      image.src = url;
+    }
+  }, [exploreCursor]);
+
+  useEffect(() => {
+    if (exploreLoaded || exploreFailed || tab !== "explore") return;
+    const id = window.setTimeout(() => {
+      const next = exploreSourceIndex + 1;
+      if (next < exploreArtwork.imageUrls.length) setExploreSourceIndex(next);
+      else setExploreFailed(true);
+    }, 5000);
+    return () => window.clearTimeout(id);
+  }, [exploreArtwork.imageUrls.length, exploreFailed, exploreLoaded, exploreSourceIndex, tab]);
 
   const completedToday = journal.some((entry) => entry.date === today.dateKey);
   const streak = calcStreak(journal);
@@ -261,13 +302,13 @@ export default function Home() {
       </div>
     </header>
 
-    <nav className="tabs"><button className={tab === "today" ? "active" : ""} onClick={() => setTab("today")}>{t.today}</button><button className={tab === "journal" ? "active" : ""} onClick={() => setTab("journal")}>{t.journal} <span>{journal.length}</span></button></nav>
+    <nav className="tabs"><button className={tab === "today" ? "active" : ""} onClick={() => setTab("today")}>{t.today}</button><button className={tab === "explore" ? "active" : ""} onClick={() => setTab("explore")}>{x.explore}</button><button className={tab === "journal" ? "active" : ""} onClick={() => setTab("journal")}>{t.journal} <span>{journal.length}</span></button></nav>
 
     {tab === "today" ? <>
       <section className="photo-stage">
         {!imageFailed ? <>
           {!imageLoaded && <div className="image-skeleton"><span>{t.loading}</span></div>}
-          <img className={`photo ${imageLoaded ? "loaded" : ""} study-${studyMode}`} src={today.artwork.imageUrls[imageIndex]} alt={today.artwork.title} onLoad={() => setImageLoaded(true)} onError={imageError} onPointerDown={captureFirstGlance} />
+          <img className={`photo ${imageLoaded ? "loaded" : ""} study-${studyMode}`} src={today.artwork.imageUrls[imageIndex]} alt={today.artwork.title} loading="eager" decoding="async" fetchPriority="high" onLoad={() => setImageLoaded(true)} onError={imageError} onPointerDown={captureFirstGlance} />
           {studyMode === "thirds" && <div className="thirds-grid" aria-hidden="true"><i/><i/><b/><b/></div>}
           {focusPoint && <span className="focus-marker" aria-hidden="true" style={{ left:`${focusPoint.x}%`, top:`${focusPoint.y}%` }}><i /></span>}
           {!timerRunning && <div className={`first-glance-hint ${focusPoint ? "done" : ""}`}>{focusPoint ? `✓ ${x.glanceDone}` : x.glance}</div>}
@@ -318,7 +359,52 @@ export default function Home() {
 
         <div className="lesson-complete"><button className={completedToday ? "complete-button done" : "complete-button"} onClick={saveToday}>{completedToday ? t.saved : t.complete}</button></div>
       </section>}
-    </> : <section className="journal-view">
+    </> : tab === "explore" ? <section className="explore-view">
+      <div className="explore-head">
+        <div><div className="eyebrow">{x.archive}</div><h1>{x.explore}</h1></div>
+        <p>{x.exploreHint}<small>{x.swipe}</small></p>
+      </div>
+      <div
+        className="explore-stage"
+        onTouchStart={(event) => { exploreTouchStart.current = event.touches[0]?.clientX ?? null; }}
+        onTouchEnd={(event) => {
+          const start = exploreTouchStart.current;
+          const end = event.changedTouches[0]?.clientX ?? start;
+          exploreTouchStart.current = null;
+          if (start == null || end == null) return;
+          const distance = end - start;
+          if (Math.abs(distance) < 44) return;
+          setExploreCursor((value) => value + (distance < 0 ? 1 : -1));
+        }}
+      >
+        {!exploreFailed ? <>
+          {!exploreLoaded && <div className="image-skeleton explore-skeleton"><span>{x.loadingNext}</span></div>}
+          <img
+            key={`${exploreArtwork.id}-${exploreSourceIndex}`}
+            className={`explore-photo ${exploreLoaded ? "loaded" : ""}`}
+            src={exploreArtwork.imageUrls[exploreSourceIndex]}
+            alt={exploreArtwork.title}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            onLoad={() => setExploreLoaded(true)}
+            onError={() => {
+              const next = exploreSourceIndex + 1;
+              if (next < exploreArtwork.imageUrls.length) setExploreSourceIndex(next);
+              else setExploreFailed(true);
+            }}
+          />
+        </> : <div className="image-error"><h2>{t.imageBreak}</h2><a href={exploreArtwork.sourceUrl} target="_blank" rel="noreferrer">{t.openSource}</a></div>}
+        <button className="explore-nav prev" aria-label="Previous photograph" onClick={() => setExploreCursor((value) => value - 1)}>‹</button>
+        <button className="explore-nav next" aria-label="Next photograph" onClick={() => setExploreCursor((value) => value + 1)}>›</button>
+        <span className="explore-index">{mod(exploreCursor, CURATED_PHOTOGRAPHS.length) + 1} / {CURATED_PHOTOGRAPHS.length}</span>
+      </div>
+      <div className="explore-caption">
+        <div><strong>{exploreArtwork.title}</strong><span>{exploreArtwork.artist} · {exploreArtwork.date}</span><small>{exploreArtwork.location}</small></div>
+        <a href={exploreArtwork.sourceUrl} target="_blank" rel="noreferrer">{t.source}</a>
+      </div>
+      <div className="explore-concept"><span>{localizeLesson(getLesson(exploreArtwork.lessonId), locale).kicker}</span><b>{localizeLesson(getLesson(exploreArtwork.lessonId), locale).concept}</b></div>
+    </section> : <section className="journal-view">
       <div className="intro-row journal-title"><div><div className="eyebrow">{t.practice}</div><h1>{t.journalTitle.split("\n").map((line, index) => <span key={line}>{line}{index === 0 && <br />}</span>)}</h1></div><p>{t.journalIntro}</p></div>
 
       <section className="rhythm-card">
