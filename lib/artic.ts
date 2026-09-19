@@ -52,8 +52,8 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1936",
     location: "Hale County, Alabama",
     imageUrls: [
-      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c52000/8c52200/8c52248v.jpg",
       "https://tile.loc.gov/storage-services/service/pnp/fsa/8c52000/8c52200/8c52248r.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c52000/8c52200/8c52248v.jpg",
       "https://upload.wikimedia.org/wikipedia/commons/c/c5/Allie_Mae_Burroughs.jpg"
     ],
     sourceUrl: "https://www.loc.gov/item/2017762301/",
@@ -122,8 +122,8 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1937",
     location: "California",
     imageUrls: [
-      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b31000/8b31800/8b31801v.jpg",
-      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b31000/8b31800/8b31801r.jpg"
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b31000/8b31800/8b31801r.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b31000/8b31800/8b31801v.jpg"
     ],
     sourceUrl: "https://www.loc.gov/item/2017769825/",
     credit: "Library of Congress · FSA/OWI · Public domain",
@@ -136,8 +136,8 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1942",
     location: "Washington, D.C.",
     imageUrls: [
-      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b14000/8b14800/8b14845v.jpg",
-      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b14000/8b14800/8b14845r.jpg"
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b14000/8b14800/8b14845r.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b14000/8b14800/8b14845v.jpg"
     ],
     sourceUrl: "https://www.loc.gov/item/2017765074/",
     credit: "Library of Congress · FSA/OWI · Public domain",
@@ -150,8 +150,8 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1939",
     location: "Woodstock, Vermont",
     imageUrls: [
-      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c11000/8c11600/8c11683v.jpg",
-      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c11000/8c11600/8c11683r.jpg"
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c11000/8c11600/8c11683r.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c11000/8c11600/8c11683v.jpg"
     ],
     sourceUrl: "https://www.loc.gov/item/2017755853/",
     credit: "Library of Congress · FSA/OWI · Public domain",
@@ -164,8 +164,8 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1939",
     location: "Clarksdale, Mississippi",
     imageUrls: [
-      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c36000/8c36000/8c36090v.jpg",
-      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c36000/8c36000/8c36090r.jpg"
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c36000/8c36000/8c36090r.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c36000/8c36000/8c36090v.jpg"
     ],
     sourceUrl: "https://www.loc.gov/item/2017801848/",
     credit: "Library of Congress · FSA/OWI · Public domain",
@@ -178,8 +178,8 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1935–1936",
     location: "Hale County, Alabama",
     imageUrls: [
-      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00234v.jpg",
-      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00234r.jpg"
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00234r.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00234v.jpg"
     ],
     sourceUrl: "https://www.loc.gov/item/96516419/",
     credit: "Library of Congress · FSA/OWI · No known restrictions",
@@ -192,8 +192,8 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1935–1936",
     location: "Sprott, Alabama",
     imageUrls: [
-      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00243v.jpg",
-      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00243r.jpg"
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00243r.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00243v.jpg"
     ],
     sourceUrl: "https://www.loc.gov/item/2017762320/",
     credit: "Library of Congress · FSA/OWI · No known restrictions",
@@ -206,8 +206,8 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1935",
     location: "Bethlehem, Pennsylvania",
     imageUrls: [
-      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00231v.jpg",
-      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00231r.jpg"
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00231r.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00231v.jpg"
     ],
     sourceUrl: "https://www.loc.gov/item/2017759355/",
     credit: "Library of Congress · FSA/OWI · Public domain",
