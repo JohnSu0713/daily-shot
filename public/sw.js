@@ -1,4 +1,4 @@
-const CACHE='daily-shot-v4';
+const CACHE='daily-shot-v5';
 const BASE='/daily-shot/';
 const SHELL=[BASE,BASE+'manifest.webmanifest',BASE+'icon.svg'];
 
@@ -19,17 +19,8 @@ self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET') return;
   const url=new URL(event.request.url);
   if(url.origin!==self.location.origin) return;
-
-  // Network-first for app assets so new deployments are visible immediately.
-  event.respondWith(
-    fetch(event.request)
-      .then(response=>{
-        if(response.ok){
-          const copy=response.clone();
-          caches.open(CACHE).then(cache=>cache.put(event.request,copy));
-        }
-        return response;
-      })
-      .catch(()=>caches.match(event.request).then(cached=>cached||caches.match(BASE)))
-  );
+  event.respondWith(fetch(event.request,{cache:'no-store'}).then(response=>{
+    if(response.ok){const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy));}
+    return response;
+  }).catch(()=>caches.match(event.request).then(cached=>cached||caches.match(BASE))));
 });
