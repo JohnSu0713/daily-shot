@@ -152,6 +152,20 @@ export default function Home() {
   useEffect(() => { if (seconds === 0) setTimerRunning(false); }, [seconds]);
 
   useEffect(() => {
+    if (imageLoaded || imageFailed) return;
+    const id = window.setTimeout(() => {
+      const next = imageIndex + 1;
+      if (next < today.artwork.imageUrls.length) {
+        setImageIndex(next);
+        setImageLoaded(false);
+      } else {
+        setImageFailed(true);
+      }
+    }, 7000);
+    return () => window.clearTimeout(id);
+  }, [imageIndex, imageLoaded, imageFailed, today.artwork.imageUrls.length]);
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement) return;
       if (event.key.toLowerCase() === "g") setStudyMode("thirds");
