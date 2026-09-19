@@ -38,7 +38,7 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1932",
     location: "San Francisco, California",
     imageUrls: [
-      "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/White_Angel_Breadline%2C_San_Francisco%2C_1932%2C_by_Dorothea_Lange.jpg/960px-White_Angel_Breadline%2C_San_Francisco%2C_1932%2C_by_Dorothea_Lange.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/c/cc/White_Angel_Breadline%2C_San_Francisco%2C_1932%2C_by_Dorothea_Lange.jpg",
       "https://upload.wikimedia.org/wikipedia/commons/c/cc/White_Angel_Breadline%2C_San_Francisco%2C_1932%2C_by_Dorothea_Lange.jpg"
     ],
     sourceUrl: "https://commons.wikimedia.org/wiki/File:White_Angel_Breadline,_San_Francisco,_1932,_by_Dorothea_Lange.jpg",
@@ -67,7 +67,7 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1942",
     location: "Washington, D.C.",
     imageUrls: [
-      "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Gordon_Parks_-_American_Gothic_full.jpg/960px-Gordon_Parks_-_American_Gothic_full.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/f/fa/Gordon_Parks_-_American_Gothic_full.jpg",
       "https://upload.wikimedia.org/wikipedia/commons/f/fa/Gordon_Parks_-_American_Gothic_full.jpg"
     ],
     sourceUrl: "https://commons.wikimedia.org/wiki/File:Gordon_Parks_-_American_Gothic_full.jpg",
@@ -81,7 +81,7 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1940",
     location: "Pie Town, New Mexico",
     imageUrls: [
-      "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/PieTownGeneralStore.jpg/960px-PieTownGeneralStore.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/a/a0/PieTownGeneralStore.jpg",
       "https://upload.wikimedia.org/wikipedia/commons/a/a0/PieTownGeneralStore.jpg"
     ],
     sourceUrl: "https://commons.wikimedia.org/wiki/File:PieTownGeneralStore.jpg",
@@ -95,7 +95,7 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     date: "1936",
     location: "Cimarron County, Oklahoma",
     imageUrls: [
-      "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Farmer_walking_in_dust_storm_Cimarron_County_Oklahoma3.jpg/960px-Farmer_walking_in_dust_storm_Cimarron_County_Oklahoma3.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/1/1d/Farmer_walking_in_dust_storm_Cimarron_County_Oklahoma3.jpg",
       "https://upload.wikimedia.org/wikipedia/commons/1/1d/Farmer_walking_in_dust_storm_Cimarron_County_Oklahoma3.jpg"
     ],
     sourceUrl: "https://commons.wikimedia.org/wiki/File:Farmer_walking_in_dust_storm_Cimarron_County_Oklahoma3.jpg",
