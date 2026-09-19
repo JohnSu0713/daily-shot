@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import { getDailyPhotograph, localDateKey } from "../lib/artic";
 import { getLesson } from "../lib/content";
 import { Locale, UI, localizeLesson } from "../lib/i18n";
@@ -8,6 +8,7 @@ import { loadPracticeShot, removePracticeShot, savePracticeShot } from "../lib/v
 
 type Theme = "light" | "dark";
 type StudyMode = "clean" | "thirds" | "mono" | "squint";
+type FocusPoint = { x:number; y:number };
 type JournalEntry = { date:string; artwork:string; artist:string; concept:string; note:string; shot?:boolean };
 
 const JOURNAL_KEY = "daily-shot:journal:v2";
@@ -18,7 +19,7 @@ const EXTRA = {
     share:"Share", copied:"Copied", fieldProof:"YOUR FRAME", localOnly:"Private · stored only on this device", addShot:"Take / add your shot", replaceShot:"Replace shot", removeShot:"Remove",
     shotHelp:"Attach one frame from today’s assignment. It stays on this device and appears in your journal.", shotError:"Couldn’t save this image on the device.",
     rhythm:"7-DAY RHYTHM", thisWeek:"this week", yourShot:"Your practice frame", noNote:"No note yet", shareText:"Today’s Daily Shot",
-    captured:"Observation captured"
+    captured:"Observation captured", glance:"Tap where your eye landed first", glanceDone:"First glance saved · tap again to move it"
   },
   zh: {
     study:"觀看工具", clean:"原圖", thirds:"三分線", mono:"黑白", squint:"瞇眼看",
@@ -26,7 +27,7 @@ const EXTRA = {
     share:"分享", copied:"已複製", fieldProof:"你的畫面", localOnly:"私密 · 只儲存在這台裝置", addShot:"拍攝 / 加入你的照片", replaceShot:"更換照片", removeShot:"移除",
     shotHelp:"把今天作業的一張照片放進來。照片只存在這台裝置，並會出現在學習日誌。", shotError:"無法在這台裝置上儲存照片。",
     rhythm:"7 日節奏", thisWeek:"本週完成", yourShot:"你的練習作品", noNote:"還沒有筆記", shareText:"今天的 Daily Shot",
-    captured:"已記下第一眼觀察"
+    captured:"已記下第一眼觀察", glance:"點一下你第一眼被吸住的位置", glanceDone:"第一眼已記下 · 再點可調整"
   }
 } as const;
 
@@ -96,6 +97,7 @@ export default function Home() {
   const [practiceShotUrl, setPracticeShotUrl] = useState("");
   const [shotError, setShotError] = useState(false);
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
+  const [focusPoint, setFocusPoint] = useState<FocusPoint | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const practiceObjectUrl = useRef("");
   const t = UI[locale];
@@ -124,6 +126,10 @@ export default function Home() {
     const items = readJournal();
     setJournal(items);
     setNote(items.find((entry) => entry.date === today.dateKey)?.note || "");
+    try {
+      const savedFocus = localStorage.getItem(`daily-shot:focus:${today.dateKey}`);
+      if (savedFocus) setFocusPoint(JSON.parse(savedFocus));
+    } catch {}
 
     loadPracticeShot(today.dateKey).then((blob) => {
       if (!blob) return;
@@ -164,6 +170,17 @@ export default function Home() {
   const changeTheme = (next: Theme) => { setTheme(next); localStorage.setItem("daily-shot:theme", next); document.documentElement.dataset.theme = next; };
   const imageError = () => { const next = imageIndex + 1; if (next < today.artwork.imageUrls.length) { setImageIndex(next); setImageLoaded(false); } else setImageFailed(true); };
   const startTimer = () => { setSeconds(30); setTimerRunning(true); };
+  const captureFirstGlance = (event: ReactPointerEvent<HTMLImageElement>) => {
+    if (timerRunning) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const point = {
+      x: Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100)),
+      y: Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100)),
+    };
+    setFocusPoint(point);
+    localStorage.setItem(`daily-shot:focus:${today.dateKey}`, JSON.stringify(point));
+  };
   const revealLesson = () => {
     setRevealedNote(note.trim());
     setRevealed(true);
@@ -233,8 +250,10 @@ export default function Home() {
       <section className="photo-stage">
         {!imageFailed ? <>
           {!imageLoaded && <div className="image-skeleton"><span>{t.loading}</span></div>}
-          <img className={`photo ${imageLoaded ? "loaded" : ""} study-${studyMode}`} src={today.artwork.imageUrls[imageIndex]} alt={today.artwork.title} onLoad={() => setImageLoaded(true)} onError={imageError} />
+          <img className={`photo ${imageLoaded ? "loaded" : ""} study-${studyMode}`} src={today.artwork.imageUrls[imageIndex]} alt={today.artwork.title} onLoad={() => setImageLoaded(true)} onError={imageError} onPointerDown={captureFirstGlance} />
           {studyMode === "thirds" && <div className="thirds-grid" aria-hidden="true"><i/><i/><b/><b/></div>}
+          {focusPoint && <span className="focus-marker" aria-hidden="true" style={{ left:`${focusPoint.x}%`, top:`${focusPoint.y}%` }}><i /></span>}
+          {!timerRunning && <div className={`first-glance-hint ${focusPoint ? "done" : ""}`}>{focusPoint ? `✓ ${x.glanceDone}` : x.glance}</div>}
         </> : <div className="image-error"><span className="brand-mark large"><i /></span><h2>{t.imageBreak}</h2><p>{t.imageBreakBody}</p><a href={today.artwork.sourceUrl} target="_blank" rel="noreferrer">{t.openSource}</a></div>}
         {timerRunning && <div className="timer-overlay"><span>{seconds}</span><small>{t.justLook}</small></div>}
       </section>
