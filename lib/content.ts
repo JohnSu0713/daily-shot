@@ -1,3 +1,4 @@
+export type LessonKeyword = { label: string; aliases: string[]; description: string };
 export type Lesson = {
   id: string;
   concept: string;
@@ -6,74 +7,17 @@ export type Lesson = {
   prompts: string[];
   practice: string;
   takeaway: string;
+  keywords: LessonKeyword[];
 };
 
 export const LESSONS: Lesson[] = [
-  {
-    id: "gesture",
-    concept: "Gesture Carries the Story",
-    kicker: "Human attention",
-    intro: "Before you read a face, notice hands, shoulders, posture, and where bodies lean. Gesture often tells you what the photograph feels like before expression does.",
-    prompts: ["Where does your eye land first?", "Which gesture holds the most tension?", "What changes if you crop one person out?"],
-    practice: "Photograph one person without asking them to pose. Make three frames where hands or posture—not facial expression—carry the meaning.",
-    takeaway: "Strong photographs often describe emotion indirectly."
-  },
-  {
-    id: "layers",
-    concept: "Build With Layers",
-    kicker: "Composition",
-    intro: "Foreground, middle ground, and background can each carry information. A layered frame feels discovered rather than arranged.",
-    prompts: ["How many visual layers can you name?", "Which figure anchors the frame?", "Where does repetition create rhythm?"],
-    practice: "Find a busy scene. Wait until foreground, middle ground, and background each contain something useful before you press the shutter.",
-    takeaway: "Depth is not only optical—it can be informational."
-  },
-  {
-    id: "framing",
-    concept: "Let the Frame Apply Pressure",
-    kicker: "Portraiture",
-    intro: "A tight frame removes escape routes. Background texture, edge tension, and direct eye contact can make a simple portrait feel unavoidable.",
-    prompts: ["How close is the frame to the subject?", "What does the background contribute?", "Would more negative space weaken or strengthen it?"],
-    practice: "Make one portrait at three distances: loose, medium, and uncomfortably close. Compare how emotional pressure changes.",
-    takeaway: "Distance is one of your strongest storytelling controls."
-  },
-  {
-    id: "symbols",
-    concept: "Use Symbols, Then Complicate Them",
-    kicker: "Visual meaning",
-    intro: "Flags, uniforms, tools, architecture, and objects arrive with cultural meaning. Strong photographs use that meaning without becoming a simple caption.",
-    prompts: ["Which object feels symbolic?", "What visual contradiction do you notice?", "What detail keeps the image from being one-note?"],
-    practice: "Photograph a familiar symbol in a context that changes or complicates its usual meaning.",
-    takeaway: "A symbol becomes interesting when the photograph adds friction."
-  },
-  {
-    id: "color",
-    concept: "Color Organizes Space",
-    kicker: "Color",
-    intro: "Color is structural. Repeated hues can connect distant areas of a frame, while one contrasting color can become an instant focal point.",
-    prompts: ["Which color family dominates?", "Where is the strongest contrast?", "What still works if you imagine the image in black and white?"],
-    practice: "Choose one color and make five frames where it appears in different parts of the composition.",
-    takeaway: "Treat color like shape, not decoration."
-  },
-  {
-    id: "atmosphere",
-    concept: "Weather Is a Visual Material",
-    kicker: "Atmosphere",
-    intro: "Dust, rain, fog, snow, and harsh sun change contrast, depth, edges, and scale. Conditions are not obstacles—they are part of the image.",
-    prompts: ["What does the atmosphere hide?", "How is scale communicated?", "Which edge is sharpest, and why?"],
-    practice: "On the next imperfect-weather day, make photographs that depend on the condition rather than trying to hide it.",
-    takeaway: "Atmosphere can become both subject and composition."
-  },
-  {
-    id: "depth",
-    concept: "Make the Eye Travel",
-    kicker: "Depth",
-    intro: "Leading lines, repeated planes, and overlapping shapes give the eye a route through a photograph. Good depth makes looking feel sequential.",
-    prompts: ["What is the visual entry point?", "Which line pulls you deeper?", "Where does the eye finally stop?"],
-    practice: "Photograph an interior using at least three planes of depth and one strong directional line.",
-    takeaway: "A frame can have a beginning, middle, and end."
-  }
+  {id:"gesture",concept:"Gesture Carries the Story",kicker:"Human attention",intro:"Before you read a face, notice hands, shoulders, posture, and where bodies lean. Gesture often tells you what the photograph feels like before expression does.",prompts:["Where does your eye land first?","Which gesture holds the most tension?","What changes if you crop one person out?"],practice:"Photograph one person without asking them to pose. Make three frames where hands or posture—not facial expression—carry the meaning.",takeaway:"Strong photographs often describe emotion indirectly.",keywords:[{label:"Gesture",aliases:["gesture","gestures","movement","motion"],description:"Look for actions and small movements that reveal what is happening."},{label:"Hands",aliases:["hand","hands","fingers","grip"],description:"Hands often communicate intention before a face does."},{label:"Posture",aliases:["posture","pose","body","lean","shoulder","shoulders"],description:"Body position can carry tension, confidence, distance, or intimacy."}]},
+  {id:"layers",concept:"Build With Layers",kicker:"Composition",intro:"Foreground, middle ground, and background can each carry information. A layered frame feels discovered rather than arranged.",prompts:["How many visual layers can you name?","Which figure anchors the frame?","Where does repetition create rhythm?"],practice:"Find a busy scene. Wait until foreground, middle ground, and background each contain something useful before you press the shutter.",takeaway:"Depth is not only optical—it can be informational.",keywords:[{label:"Foreground",aliases:["foreground","front","near"],description:"The foreground creates the viewer’s entry point into the scene."},{label:"Middle ground",aliases:["middle ground","midground","middle"],description:"The middle ground connects near and distant information."},{label:"Background",aliases:["background","back","distance","distant"],description:"The background can add context, contrast, and another layer of meaning."},{label:"Repetition",aliases:["repetition","repeat","repeated","rhythm","pattern"],description:"Repeated forms connect separate parts of a busy frame."}]},
+  {id:"framing",concept:"Let the Frame Apply Pressure",kicker:"Portraiture",intro:"A tight frame removes escape routes. Background texture, edge tension, and direct eye contact can make a simple portrait feel unavoidable.",prompts:["How close is the frame to the subject?","What does the background contribute?","Would more negative space weaken or strengthen it?"],practice:"Make one portrait at three distances: loose, medium, and uncomfortably close. Compare how emotional pressure changes.",takeaway:"Distance is one of your strongest storytelling controls.",keywords:[{label:"Tight frame",aliases:["tight","close","close-up","crop","cropped"],description:"A tight frame reduces breathing room and increases visual pressure."},{label:"Edge tension",aliases:["edge","edges","tension","boundary"],description:"Notice how close important forms sit to the boundaries of the photograph."},{label:"Eye contact",aliases:["eye","eyes","eye contact","gaze","look"],description:"Direct gaze can make the relationship with the viewer feel immediate."},{label:"Negative space",aliases:["negative space","empty space","space","room"],description:"More or less empty space changes the emotional distance around a subject."}]},
+  {id:"symbols",concept:"Use Symbols, Then Complicate Them",kicker:"Visual meaning",intro:"Flags, uniforms, tools, architecture, and objects arrive with cultural meaning. Strong photographs use that meaning without becoming a simple caption.",prompts:["Which object feels symbolic?","What visual contradiction do you notice?","What detail keeps the image from being one-note?"],practice:"Photograph a familiar symbol in a context that changes or complicates its usual meaning.",takeaway:"A symbol becomes interesting when the photograph adds friction.",keywords:[{label:"Symbol",aliases:["symbol","symbolic","flag","uniform","icon"],description:"Recognizable objects can bring cultural meaning into a photograph instantly."},{label:"Contradiction",aliases:["contradiction","contrast","conflict","opposite","irony"],description:"Contradictory signals keep a symbol from having only one reading."},{label:"Context",aliases:["context","setting","surroundings","environment"],description:"Context can reinforce or overturn what a familiar symbol normally means."},{label:"Detail",aliases:["detail","details","object","objects"],description:"A small detail can complicate the obvious interpretation of a scene."}]},
+  {id:"color",concept:"Color Organizes Space",kicker:"Color",intro:"Color is structural. Repeated hues can connect distant areas of a frame, while one contrasting color can become an instant focal point.",prompts:["Which color family dominates?","Where is the strongest contrast?","What still works if you imagine the image in black and white?"],practice:"Choose one color and make five frames where it appears in different parts of the composition.",takeaway:"Treat color like shape, not decoration.",keywords:[{label:"Dominant color",aliases:["dominant color","color","colour","hue","red","blue","green","yellow"],description:"A dominant color can establish the visual atmosphere of the whole frame."},{label:"Contrast",aliases:["contrast","contrasting","opposite","complementary"],description:"Color contrast creates hierarchy and can pull attention immediately."},{label:"Repetition",aliases:["repetition","repeat","repeated","echo","rhythm"],description:"Repeated hues visually connect distant parts of the composition."},{label:"Focal point",aliases:["focal point","focus","attention","eye","stands out"],description:"A distinct color can become the place the eye visits first."}]},
+  {id:"atmosphere",concept:"Weather Is a Visual Material",kicker:"Atmosphere",intro:"Dust, rain, fog, snow, and harsh sun change contrast, depth, edges, and scale. Conditions are not obstacles—they are part of the image.",prompts:["What does the atmosphere hide?","How is scale communicated?","Which edge is sharpest, and why?"],practice:"On the next imperfect-weather day, make photographs that depend on the condition rather than trying to hide it.",takeaway:"Atmosphere can become both subject and composition.",keywords:[{label:"Atmosphere",aliases:["atmosphere","weather","air","mist"],description:"The condition of the air can become a visible part of the composition."},{label:"Fog / rain / dust",aliases:["fog","mist","rain","dust","snow","haze"],description:"Weather can hide information and soften the transition between planes."},{label:"Depth",aliases:["depth","distance","layers","far","near"],description:"Atmospheric conditions can make spatial depth more visible."},{label:"Edges",aliases:["edge","edges","sharp","soft","blur","blurred"],description:"Compare sharp and soft edges to understand how atmosphere shapes attention."}]},
+  {id:"depth",concept:"Make the Eye Travel",kicker:"Depth",intro:"Leading lines, repeated planes, and overlapping shapes give the eye a route through a photograph. Good depth makes looking feel sequential.",prompts:["What is the visual entry point?","Which line pulls you deeper?","Where does the eye finally stop?"],practice:"Photograph an interior using at least three planes of depth and one strong directional line.",takeaway:"A frame can have a beginning, middle, and end.",keywords:[{label:"Leading lines",aliases:["leading line","leading lines","line","lines","direction"],description:"Directional lines create a route for the eye to follow through the frame."},{label:"Planes",aliases:["plane","planes","layer","layers","foreground","background"],description:"Multiple spatial planes make a flat image feel navigable."},{label:"Overlap",aliases:["overlap","overlapping","occlusion","in front"],description:"Overlapping shapes give the viewer clues about what is nearer or farther away."},{label:"Entry point",aliases:["entry point","entry","start","first","eye"],description:"A clear entry point gives the viewing sequence a beginning."}]}
 ];
 
-export function getLesson(id: string) {
-  return LESSONS.find((lesson) => lesson.id === id) ?? LESSONS[0];
-}
+export function getLesson(id: string) { return LESSONS.find((lesson)=>lesson.id===id) ?? LESSONS[0]; }
