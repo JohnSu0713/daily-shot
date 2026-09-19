@@ -114,6 +114,104 @@ export const CURATED_PHOTOGRAPHS: Artwork[] = [
     sourceUrl: "https://commons.wikimedia.org/wiki/File:Jack_Delano_-_Freight_train_operations_on_the_Chicago_and_Northwestern_Railroad_between_Chicago_and_Northwestern_Railroad_between_Chicago_and_Clinton,_Iowa.jpg",
     credit: "Library of Congress · FSA/OWI · Public domain",
     lessonId: "depth"
+  },
+  {
+    id: "toward-los-angeles",
+    title: "Toward Los Angeles, California",
+    artist: "Dorothea Lange",
+    date: "1937",
+    location: "California",
+    imageUrls: [
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b31000/8b31800/8b31801v.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b31000/8b31800/8b31801r.jpg"
+    ],
+    sourceUrl: "https://www.loc.gov/item/2017769825/",
+    credit: "Library of Congress · FSA/OWI · Public domain",
+    lessonId: "depth"
+  },
+  {
+    id: "ella-watson",
+    title: "Washington, D.C. Government Charwoman",
+    artist: "Gordon Parks",
+    date: "1942",
+    location: "Washington, D.C.",
+    imageUrls: [
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b14000/8b14800/8b14845v.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8b14000/8b14800/8b14845r.jpg"
+    ],
+    sourceUrl: "https://www.loc.gov/item/2017765074/",
+    credit: "Library of Congress · FSA/OWI · Public domain",
+    lessonId: "symbols"
+  },
+  {
+    id: "woodstock-vermont",
+    title: "Center of Town, Woodstock, Vermont",
+    artist: "Marion Post Wolcott",
+    date: "1939",
+    location: "Woodstock, Vermont",
+    imageUrls: [
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c11000/8c11600/8c11683v.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c11000/8c11600/8c11683r.jpg"
+    ],
+    sourceUrl: "https://www.loc.gov/item/2017755853/",
+    credit: "Library of Congress · FSA/OWI · Public domain",
+    lessonId: "atmosphere"
+  },
+  {
+    id: "jitterbugging-clarksdale",
+    title: "Jitterbugging in a Juke Joint",
+    artist: "Marion Post Wolcott",
+    date: "1939",
+    location: "Clarksdale, Mississippi",
+    imageUrls: [
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c36000/8c36000/8c36090v.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/fsa/8c36000/8c36000/8c36090r.jpg"
+    ],
+    sourceUrl: "https://www.loc.gov/item/2017801848/",
+    credit: "Library of Congress · FSA/OWI · Public domain",
+    lessonId: "gesture"
+  },
+  {
+    id: "bud-fields-family",
+    title: "Bud Fields and His Family at Home",
+    artist: "Walker Evans",
+    date: "1935–1936",
+    location: "Hale County, Alabama",
+    imageUrls: [
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00234v.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00234r.jpg"
+    ],
+    sourceUrl: "https://www.loc.gov/item/96516419/",
+    credit: "Library of Congress · FSA/OWI · No known restrictions",
+    lessonId: "layers"
+  },
+  {
+    id: "crossroads-store",
+    title: "Crossroads Store, Sprott, Alabama",
+    artist: "Walker Evans",
+    date: "1935–1936",
+    location: "Sprott, Alabama",
+    imageUrls: [
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00243v.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00243r.jpg"
+    ],
+    sourceUrl: "https://www.loc.gov/item/2017762320/",
+    credit: "Library of Congress · FSA/OWI · No known restrictions",
+    lessonId: "framing"
+  },
+  {
+    id: "bethlehem-graveyard",
+    title: "Bethlehem Graveyard and Steel Mill",
+    artist: "Walker Evans",
+    date: "1935",
+    location: "Bethlehem, Pennsylvania",
+    imageUrls: [
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00231v.jpg",
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsc/00200/00231r.jpg"
+    ],
+    sourceUrl: "https://www.loc.gov/item/2017759355/",
+    credit: "Library of Congress · FSA/OWI · Public domain",
+    lessonId: "depth"
   }
 ];
 
@@ -124,10 +222,12 @@ export function localDateKey(date = new Date()) {
   return `${y}-${m}-${d}`;
 }
 
+const DAILY_ROTATION_SIZE = 7;
+
 export function getDailyPhotograph(date = new Date()): DailyPhotograph {
   const key = localDateKey(date);
   const [y, m, d] = key.split("-").map(Number);
   const dayNumber = Math.floor(Date.UTC(y, m - 1, d) / 86400000);
-  const index = ((dayNumber % CURATED_PHOTOGRAPHS.length) + CURATED_PHOTOGRAPHS.length) % CURATED_PHOTOGRAPHS.length;
+  const index = ((dayNumber % DAILY_ROTATION_SIZE) + DAILY_ROTATION_SIZE) % DAILY_ROTATION_SIZE;
   return { artwork: CURATED_PHOTOGRAPHS[index], index, dateKey: key };
 }
