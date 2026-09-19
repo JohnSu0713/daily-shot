@@ -6,7 +6,7 @@ const transparentPng = Buffer.from(
 );
 
 test.beforeEach(async ({ page }) => {
-  await page.route(/wikimedia\.org/, async (route) => {
+  await page.route(/(wikimedia\.org|tile\.loc\.gov)/, async (route) => {
     await route.fulfill({ status: 200, contentType: "image/png", body: transparentPng });
   });
   await page.goto("/daily-shot/");
@@ -101,9 +101,9 @@ test("PWA shell and source link are present", async ({ page, request }) => {
 
   const serviceWorker = await request.get("/daily-shot/sw.js");
   expect(serviceWorker.ok()).toBeTruthy();
-  expect(await serviceWorker.text()).toContain("daily-shot-v9");
+  expect(await serviceWorker.text()).toContain("daily-shot-v10");
 
-  await expect(page.locator('a:has-text("Source")')).toHaveAttribute("href", /commons\.wikimedia\.org/);
+  await expect(page.locator('a:has-text("Source")')).toHaveAttribute("href", /(commons\.wikimedia\.org|loc\.gov)/);
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/daily-shot/manifest.webmanifest");
 });
 
