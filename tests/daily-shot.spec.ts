@@ -21,7 +21,14 @@ test("daily learning flow persists into the journal", async ({ page }) => {
   await expect(page.locator(".caption-row strong")).not.toBeEmpty();
   await expect(page.getByLabel("STUDY THE FRAME")).toBeVisible();
 
-  await page.locator(".photo").click({ position: { x: 80, y: 80 } });
+  await page.locator(".photo").evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    element.dispatchEvent(new PointerEvent("pointerdown", {
+      bubbles: true,
+      clientX: rect.left + Math.min(80, rect.width / 2),
+      clientY: rect.top + Math.min(80, rect.height / 2),
+    }));
+  });
   await expect(page.locator(".focus-marker")).toBeVisible();
 
   await page.getByRole("button", { name: "B&W", exact: true }).click();
