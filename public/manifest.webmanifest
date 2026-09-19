@@ -1,0 +1,13 @@
+{
+  "name": "Daily Shot",
+  "short_name": "Daily Shot",
+  "description": "Learn photography, one image at a time.",
+  "start_url": "/daily-shot/",
+  "scope": "/daily-shot/",
+  "display": "standalone",
+  "background_color": "#f7f6f2",
+  "theme_color": "#171715",
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
