@@ -1,25 +1,58 @@
-// Daily Shot intentionally does not cache the application shell.
-// GitHub Pages is the source of truth so installed iOS PWAs receive each deployment.
-self.addEventListener("install",()=>self.skipWaiting());
+const CACHE = "daily-shot-v9";
+const APP_SHELL = "/daily-shot/";
 
-self.addEventListener("activate",event=>{
+self.addEventListener("install", () => self.skipWaiting());
+
+self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then(keys=>Promise.all(keys.map(key=>caches.delete(key))))
-      .then(()=>self.clients.claim())
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener("message",event=>{
-  if(event.data?.type==="SKIP_WAITING") self.skipWaiting();
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
-self.addEventListener("fetch",event=>{
-  if(event.request.method!=="GET") return;
-  const url=new URL(event.request.url);
-  if(url.origin!==self.location.origin) return;
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE);
+  try {
+    const response = await fetch(new Request(request, { cache: "no-store" }));
+    if (response.ok) await cache.put(request, response.clone());
+    return response;
+  } catch {
+    return (await cache.match(request)) || (await cache.match(APP_SHELL)) || Response.error();
+  }
+}
 
-  // Never satisfy same-origin app requests from Cache Storage.
-  // Explicit no-store avoids a stale Home Screen app shell on iOS.
-  event.respondWith(fetch(new Request(event.request,{cache:"no-store"})));
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response.ok || response.type === "opaque") await cache.put(request, response.clone());
+  return response;
+}
+
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+
+  if (event.request.mode === "navigate" && url.origin === self.location.origin) {
+    event.respondWith(networkFirst(event.request));
+    return;
+  }
+
+  if (url.origin === self.location.origin) {
+    const immutable = url.pathname.includes("/_next/static/") ||
+      url.pathname.endsWith("/icon.svg") ||
+      url.pathname.endsWith("/manifest.webmanifest");
+    if (immutable) event.respondWith(cacheFirst(event.request));
+    return;
+  }
+
+  if (event.request.destination === "image" && /(^|\.)wikimedia\.org$/.test(url.hostname)) {
+    event.respondWith(cacheFirst(event.request));
+  }
 });
