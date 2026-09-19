@@ -1,4 +1,4 @@
-const CACHE = "daily-shot-v9";
+const CACHE = "daily-shot-v10";
 const APP_SHELL = "/daily-shot/";
 
 self.addEventListener("install", () => self.skipWaiting());
@@ -31,7 +31,7 @@ async function cacheFirst(request) {
   const cached = await cache.match(request);
   if (cached) return cached;
   const response = await fetch(request);
-  if (response.ok || response.type === "opaque") await cache.put(request, response.clone());
+  if (response.ok) await cache.put(request, response.clone());
   return response;
 }
 
@@ -39,20 +39,17 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
 
-  if (event.request.mode === "navigate" && url.origin === self.location.origin) {
+  // Safari/iOS PWA can stall on cross-origin image requests when they are
+  // intercepted by a service worker. Leave every third-party request alone.
+  if (url.origin !== self.location.origin) return;
+
+  if (event.request.mode === "navigate") {
     event.respondWith(networkFirst(event.request));
     return;
   }
 
-  if (url.origin === self.location.origin) {
-    const immutable = url.pathname.includes("/_next/static/") ||
-      url.pathname.endsWith("/icon.svg") ||
-      url.pathname.endsWith("/manifest.webmanifest");
-    if (immutable) event.respondWith(cacheFirst(event.request));
-    return;
-  }
-
-  if (event.request.destination === "image" && /(^|\.)wikimedia\.org$/.test(url.hostname)) {
-    event.respondWith(cacheFirst(event.request));
-  }
+  const immutable = url.pathname.includes("/_next/static/") ||
+    url.pathname.endsWith("/icon.svg") ||
+    url.pathname.endsWith("/manifest.webmanifest");
+  if (immutable) event.respondWith(cacheFirst(event.request));
 });
