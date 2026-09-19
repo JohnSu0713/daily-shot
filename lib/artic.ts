@@ -12,9 +12,6 @@ export type DailyPhotograph = {
   imageUrl: string;
 };
 
-// AIC's IIIF host can currently return a Cloudflare challenge to third-party
-// image requests. Keep the provider contract, but use a curated public-domain
-// image URL that is reliable in browsers until direct IIIF delivery is stable.
 const CURATED_DAILY: DailyPhotograph[] = [
   {
     artwork: {
@@ -25,7 +22,9 @@ const CURATED_DAILY: DailyPhotograph[] = [
       image_id: "commons-migrant-mother",
       medium_display: "Photograph"
     },
-    imageUrl: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Lange-MigrantMother02.jpg?width=1200"
+    // Use Wikimedia's supported external-file redirect instead of a direct CDN
+    // hotlink. The browser follows the redirect to an appropriately sized asset.
+    imageUrl: "https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/Lange-MigrantMother.jpg&width=1200"
   }
 ];
 
