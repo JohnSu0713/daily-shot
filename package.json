@@ -1,12 +1,13 @@
 {
   "name": "daily-shot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "typecheck": "tsc --noEmit",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "next": "15.5.2",
@@ -14,6 +15,7 @@
     "react-dom": "19.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
