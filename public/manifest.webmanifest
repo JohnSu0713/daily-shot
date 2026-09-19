@@ -1,13 +1,17 @@
 {
-  "name": "Daily Shot",
+  "name": "Daily Shot — Learn to see",
   "short_name": "Daily Shot",
-  "description": "Learn photography, one image at a time.",
+  "description": "A five-minute daily photography practice built around master photographs.",
   "start_url": "/daily-shot/",
   "scope": "/daily-shot/",
   "display": "standalone",
-  "background_color": "#f7f6f2",
-  "theme_color": "#171715",
+  "orientation": "portrait-primary",
+  "background_color": "#f4f1e9",
+  "theme_color": "#f4f1e9",
   "icons": [
-    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+    {"src":"/daily-shot/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ],
+  "shortcuts": [
+    {"name":"Today","short_name":"Today","url":"/daily-shot/"}
   ]
 }

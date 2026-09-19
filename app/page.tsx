@@ -1,50 +1,258 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Artwork, getDailyPhotograph } from "../lib/artic";
 
-type Locale = "en" | "zh";
-type Theme = "light" | "dark";
+import { useEffect, useMemo, useState } from "react";
+import { getDailyPhotograph, localDateKey } from "../lib/artic";
+import { getLesson } from "../lib/content";
 
-const copy = {
-  en: {
-    tagline:"Learn to see.", today:"Today", journal:"Journal", daily:"DAILY PHOTOGRAPH", title:"Look before you read.", loading:"Finding today’s photograph…", failed:"Today’s photograph could not be displayed. Please refresh to try again.", lead:"Spend 30 seconds looking. Don’t decide whether you like it yet.", prompts:["Where does your eye go first?","What is the light doing?","What might exist outside the frame?"], reveal:"Reveal today’s lesson", conceptLabel:"TODAY’S CONCEPT", concept:"Observe Before Judging", intro:"Separate what you see from what you assume. Start with light, shape, gesture, distance, repetition, contrast, and framing.", practiceLabel:"TRY IT TODAY", practiceTitle:"One subject, three readings", practice:"Photograph one ordinary subject three ways: emphasize light, shape, then story. Compare which frame communicates most clearly.", complete:"Complete today’s practice", completed:"✓ Today complete", progress:"YOUR PROGRESS", journalTitle:"Learning journal", days:"Days completed", concepts:"Concepts learned", themeLight:"Light", themeDark:"Dark"
-  },
-  zh: {
-    tagline:"學會看見。", today:"今日", journal:"日誌", daily:"每日攝影作品", title:"先看，再讀。", loading:"正在準備今天的攝影作品…", failed:"今天的攝影作品無法顯示，請重新整理後再試。", lead:"先花 30 秒觀察。暫時不要判斷自己喜不喜歡這張照片。", prompts:["你的視線第一個落在哪裡？","光線正在做什麼？","畫面之外可能還有什麼？"], reveal:"揭曉今天的課程", conceptLabel:"今日概念", concept:"先觀察，再判斷", intro:"把你真正看見的，和你以為發生的事情分開。先觀察光線、形狀、動作、距離、重複、對比與取景。", practiceLabel:"今天試試看", practiceTitle:"一個主體，三種觀看方式", practice:"選一個日常主體拍三張照片：第一張強調光線、第二張強調形狀、第三張強調故事。比較哪一張最清楚地傳達你的想法。", complete:"完成今天的練習", completed:"✓ 今日已完成", progress:"你的進度", journalTitle:"學習日誌", days:"完成天數", concepts:"學會的概念", themeLight:"淺色", themeDark:"深色"
+type JournalEntry = {
+  date: string;
+  artwork: string;
+  artist: string;
+  concept: string;
+  note: string;
+};
+
+const JOURNAL_KEY = "daily-shot:journal:v2";
+
+function readJournal(): JournalEntry[] {
+  try {
+    return JSON.parse(localStorage.getItem(JOURNAL_KEY) || "[]");
+  } catch {
+    return [];
   }
-} as const;
+}
+
+function calcStreak(entries: JournalEntry[]) {
+  const completed = new Set(entries.map((entry) => entry.date));
+  let streak = 0;
+  const cursor = new Date();
+  while (completed.has(localDateKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
 
 export default function Home() {
-  const [art, setArt] = useState<Artwork | null>(null);
-  const [imageUrl, setImageUrl] = useState("");
-  const [imageFailed, setImageFailed] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [revealed, setRevealed] = useState(false);
-  const [done, setDone] = useState(false);
+  const today = useMemo(() => getDailyPhotograph(), []);
+  const lesson = useMemo(() => getLesson(today.artwork.lessonId), [today.artwork.lessonId]);
   const [tab, setTab] = useState<"today" | "journal">("today");
-  const [locale, setLocale] = useState<Locale>("en");
-  const [theme, setTheme] = useState<Theme>("light");
-  const t = copy[locale];
+  const [revealed, setRevealed] = useState(false);
+  const [imageIndex, setImageIndex] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+  const [journal, setJournal] = useState<JournalEntry[]>([]);
+  const [note, setNote] = useState("");
+  const [seconds, setSeconds] = useState(30);
+  const [timerRunning, setTimerRunning] = useState(false);
 
   useEffect(() => {
-    setDone(localStorage.getItem("daily-shot:today") === "done");
-    const savedLocale = localStorage.getItem("daily-shot:locale") as Locale | null;
-    const savedTheme = localStorage.getItem("daily-shot:theme") as Theme | null;
-    if (savedLocale === "en" || savedLocale === "zh") setLocale(savedLocale);
-    const initialTheme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    setTheme(initialTheme);
-    document.documentElement.dataset.theme = initialTheme;
-    getDailyPhotograph().then(result => { if(result){setArt(result.artwork);setImageUrl(result.imageUrl);} }).finally(()=>setLoading(false));
-  }, []);
+    const items = readJournal();
+    setJournal(items);
+    const existing = items.find((entry) => entry.date === today.dateKey);
+    setNote(existing?.note || "");
+  }, [today.dateKey]);
 
-  const switchLocale = (value: Locale) => { setLocale(value); localStorage.setItem("daily-shot:locale", value); document.documentElement.lang = value === "zh" ? "zh-Hant" : "en"; };
-  const switchTheme = (value: Theme) => { setTheme(value); localStorage.setItem("daily-shot:theme", value); document.documentElement.dataset.theme = value; };
-  const complete = () => { localStorage.setItem("daily-shot:today", "done"); setDone(true); };
+  useEffect(() => {
+    if (!timerRunning || seconds <= 0) return;
+    const id = window.setInterval(() => setSeconds((value) => value - 1), 1000);
+    return () => window.clearInterval(id);
+  }, [timerRunning, seconds]);
 
-  return <main className="shell">
-    <header><div><div className="eyebrow">DAILY SHOT</div><div className="brand">{t.tagline}</div></div><div className="controls" aria-label="Preferences"><div className="segmented"><button className={locale==="en"?"selected":""} onClick={()=>switchLocale("en")}>EN</button><button className={locale==="zh"?"selected":""} onClick={()=>switchLocale("zh")}>中文</button></div><div className="segmented"><button aria-label={t.themeLight} className={theme==="light"?"selected":""} onClick={()=>switchTheme("light")}>☀︎</button><button aria-label={t.themeDark} className={theme==="dark"?"selected":""} onClick={()=>switchTheme("dark")}>☾</button></div></div></header>
-    <nav><button className={tab==="today"?"active":""} onClick={()=>setTab("today")}>{t.today}</button><button className={tab==="journal"?"active":""} onClick={()=>setTab("journal")}>{t.journal}</button></nav>
-    {tab === "today" ? <><section className="hero"><div className="eyebrow">{t.daily}</div><h1>{t.title}</h1>{loading?<div className="placeholder">{t.loading}</div>:art&&imageUrl&&!imageFailed?<figure><img className="photo" src={imageUrl} alt={art.title} onError={()=>setImageFailed(true)}/><figcaption>{art.title} · {art.artist_title||"Unknown artist"} · {art.date_display}</figcaption></figure>:<div className="placeholder">{t.failed}</div>}<p className="lead">{t.lead}</p><div className="questions">{t.prompts.map((p,i)=><article key={p}><b>0{i+1}</b><span>{p}</span></article>)}</div>{!revealed&&<button className="primary" onClick={()=>setRevealed(true)}>{t.reveal}</button>}</section>{revealed&&<section className="lesson"><div className="eyebrow">{t.conceptLabel}</div><h2>{t.concept}</h2><p>{t.intro}</p><div className="practice"><div className="eyebrow">{t.practiceLabel}</div><h3>{t.practiceTitle}</h3><p>{t.practice}</p>{done?<strong>{t.completed}</strong>:<button className="primary" onClick={complete}>{t.complete}</button>}</div></section>}</>:<section><div className="eyebrow">{t.progress}</div><h1>{t.journalTitle}</h1><div className="stats"><article><strong>{done?1:0}</strong><span>{t.days}</span></article><article><strong>{done?1:0}</strong><span>{t.concepts}</span></article></div></section>}
-    <footer>Daily Shot · v0.2</footer>
-  </main>;
+  useEffect(() => {
+    if (seconds === 0) setTimerRunning(false);
+  }, [seconds]);
+
+  const completedToday = journal.some((entry) => entry.date === today.dateKey);
+  const streak = calcStreak(journal);
+
+  const handleImageError = () => {
+    const next = imageIndex + 1;
+    if (next < today.artwork.imageUrls.length) {
+      setImageIndex(next);
+      setImageLoaded(false);
+      return;
+    }
+    setImageFailed(true);
+  };
+
+  const saveToday = () => {
+    const entry: JournalEntry = {
+      date: today.dateKey,
+      artwork: today.artwork.title,
+      artist: today.artwork.artist,
+      concept: lesson.concept,
+      note: note.trim()
+    };
+    const next = [entry, ...journal.filter((item) => item.date !== today.dateKey)]
+      .sort((a, b) => b.date.localeCompare(a.date));
+    localStorage.setItem(JOURNAL_KEY, JSON.stringify(next));
+    setJournal(next);
+  };
+
+  const startTimer = () => {
+    setSeconds(30);
+    setTimerRunning(true);
+  };
+
+  return (
+    <main className="shell">
+      <header className="topbar">
+        <button className="brand-lockup" onClick={() => setTab("today")} aria-label="Daily Shot home">
+          <span className="brand-mark" aria-hidden="true"><i /></span>
+          <span><b>Daily Shot</b><small>Learn to see.</small></span>
+        </button>
+        <div className="header-meta">
+          <span>{streak > 0 ? `${streak} day streak` : "Start your streak"}</span>
+          <span className="date-chip">{new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(new Date())}</span>
+        </div>
+      </header>
+
+      <nav className="tabs" aria-label="Primary">
+        <button className={tab === "today" ? "active" : ""} onClick={() => setTab("today")}>Today</button>
+        <button className={tab === "journal" ? "active" : ""} onClick={() => setTab("journal")}>
+          Journal <span>{journal.length}</span>
+        </button>
+      </nav>
+
+      {tab === "today" ? (
+        <>
+          <section className="intro-row">
+            <div>
+              <div className="eyebrow">DAILY PHOTOGRAPH · {lesson.kicker.toUpperCase()}</div>
+              <h1>Look first.<br />Read later.</h1>
+            </div>
+            <p>One master photograph, one visual idea, one small assignment. About five minutes a day.</p>
+          </section>
+
+          <section className="photo-stage">
+            {!imageFailed ? (
+              <>
+                {!imageLoaded && <div className="image-skeleton"><span>Loading today’s photograph</span></div>}
+                <img
+                  className={`photo ${imageLoaded ? "loaded" : ""}`}
+                  src={today.artwork.imageUrls[imageIndex]}
+                  alt={today.artwork.title}
+                  onLoad={() => setImageLoaded(true)}
+                  onError={handleImageError}
+                />
+              </>
+            ) : (
+              <div className="image-error">
+                <span className="brand-mark large"><i /></span>
+                <h2>The image host is taking a break.</h2>
+                <p>The lesson still works. Open the museum/source copy, then return here.</p>
+                <a href={today.artwork.sourceUrl} target="_blank" rel="noreferrer">Open source photograph ↗</a>
+              </div>
+            )}
+            {timerRunning && (
+              <div className="timer-overlay">
+                <span>{seconds}</span>
+                <small>Just look. No judging.</small>
+              </div>
+            )}
+          </section>
+
+          <div className="caption-row">
+            <div>
+              <strong>{today.artwork.title}</strong>
+              <span>{today.artwork.artist} · {today.artwork.date} · {today.artwork.location}</span>
+            </div>
+            <a href={today.artwork.sourceUrl} target="_blank" rel="noreferrer">Source ↗</a>
+          </div>
+          <div className="credit">{today.artwork.credit}</div>
+
+          <section className="observe">
+            <div className="observe-head">
+              <p>Spend 30 seconds with the frame before reading anything else.</p>
+              <button className="timer-button" onClick={startTimer} disabled={timerRunning}>
+                {timerRunning ? `${seconds}s` : "Start 30s look"}
+              </button>
+            </div>
+            <div className="questions">
+              {lesson.prompts.map((prompt, i) => (
+                <article key={prompt}><b>0{i + 1}</b><span>{prompt}</span></article>
+              ))}
+            </div>
+            {!revealed && <button className="primary wide" onClick={() => setRevealed(true)}>Reveal today’s lesson <span>↓</span></button>}
+          </section>
+
+          {revealed && (
+            <section className="lesson">
+              <div className="lesson-grid">
+                <div>
+                  <div className="eyebrow">TODAY’S CONCEPT</div>
+                  <h2>{lesson.concept}</h2>
+                </div>
+                <div className="lesson-copy">
+                  <p>{lesson.intro}</p>
+                  <blockquote>{lesson.takeaway}</blockquote>
+                </div>
+              </div>
+
+              <div className="practice-card">
+                <div className="practice-number">01</div>
+                <div>
+                  <div className="eyebrow">MAKE A FRAME</div>
+                  <h3>Try it today</h3>
+                  <p>{lesson.practice}</p>
+                </div>
+              </div>
+
+              <div className="reflection">
+                <div>
+                  <div className="eyebrow">YOUR NOTE</div>
+                  <h3>What did you notice?</h3>
+                </div>
+                <textarea
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  placeholder="One sentence is enough…"
+                  maxLength={400}
+                />
+                <div className="reflection-foot">
+                  <span>{note.length}/400</span>
+                  <button className={completedToday ? "complete-button done" : "complete-button"} onClick={saveToday}>
+                    {completedToday ? "✓ Saved for today" : "Complete today"}
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+        </>
+      ) : (
+        <section className="journal-view">
+          <div className="intro-row journal-title">
+            <div><div className="eyebrow">YOUR PRACTICE</div><h1>Learning<br />journal.</h1></div>
+            <p>A quiet record of the photographs and visual ideas you have actually spent time with.</p>
+          </div>
+          <div className="stats">
+            <article><strong>{journal.length}</strong><span>days practiced</span></article>
+            <article><strong>{streak}</strong><span>current streak</span></article>
+            <article><strong>{new Set(journal.map((entry) => entry.concept)).size}</strong><span>concepts learned</span></article>
+          </div>
+
+          {journal.length ? (
+            <div className="entries">
+              {journal.map((entry) => (
+                <article key={entry.date}>
+                  <time>{new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(new Date(entry.date + "T12:00:00"))}</time>
+                  <div><h3>{entry.concept}</h3><p>{entry.artwork} · {entry.artist}</p>{entry.note && <blockquote>“{entry.note}”</blockquote>}</div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <span className="brand-mark large"><i /></span>
+              <h2>Your journal starts with one photograph.</h2>
+              <p>Finish today’s lesson and your first entry will appear here.</p>
+              <button className="primary" onClick={() => setTab("today")}>Go to today</button>
+            </div>
+          )}
+        </section>
+      )}
+
+      <footer><span className="brand-mark mini"><i /></span><span>Daily Shot</span><span>Seven photographs · seven ways of seeing</span></footer>
+    </main>
+  );
 }

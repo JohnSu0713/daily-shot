@@ -1,10 +1,13 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Daily Shot",
-  description: "Learn photography, one image at a time.",
+  title: "Daily Shot — Learn to see",
+  description: "A five-minute daily photography practice built around master photographs.",
   manifest: "/daily-shot/manifest.webmanifest",
-  appleWebApp: { capable: true, title: "Daily Shot", statusBarStyle: "black-translucent" },
+  icons: { icon: "/daily-shot/icon.svg", apple: "/daily-shot/icon.svg" },
+  themeColor: "#f4f1e9",
+  appleWebApp: { capable: true, title: "Daily Shot", statusBarStyle: "default" as const },
+  other: { "mobile-web-app-capable": "yes" }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
