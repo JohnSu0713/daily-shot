@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { artworkImageUrl, Artwork, getDailyPhotograph } from "../lib/artic";
+import { Artwork, getDailyPhotograph } from "../lib/artic";
 import { dailyLesson } from "../lib/content";
 
 export default function Home() {
   const [art, setArt] = useState<Artwork | null>(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageFailed, setImageFailed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [revealed, setRevealed] = useState(false);
   const [done, setDone] = useState(false);
@@ -12,7 +14,13 @@ export default function Home() {
 
   useEffect(() => {
     setDone(localStorage.getItem("daily-shot:today") === "done");
-    getDailyPhotograph().then(setArt).finally(() => setLoading(false));
+    getDailyPhotograph()
+      .then((result) => {
+        if (!result) return;
+        setArt(result.artwork);
+        setImageUrl(result.imageUrl);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const complete = () => {
@@ -25,7 +33,7 @@ export default function Home() {
     <nav><button className={tab === "today" ? "active" : ""} onClick={() => setTab("today")}>Today</button><button className={tab === "journal" ? "active" : ""} onClick={() => setTab("journal")}>Journal</button></nav>
     {tab === "today" ? <>
       <section className="hero"><div className="eyebrow">DAILY PHOTOGRAPH</div><h1>Look before you read.</h1>
-        {loading ? <div className="placeholder">Finding today’s photograph…</div> : art ? <figure><img className="photo" src={artworkImageUrl(art.image_id)} alt={art.title}/><figcaption>{art.title} · {art.artist_title || "Unknown artist"} · {art.date_display}</figcaption></figure> : <div className="placeholder">Today’s photograph could not be loaded.</div>}
+        {loading ? <div className="placeholder">Finding today’s photograph…</div> : art && imageUrl && !imageFailed ? <figure><img className="photo" src={imageUrl} alt={art.title} onError={() => setImageFailed(true)}/><figcaption>{art.title} · {art.artist_title || "Unknown artist"} · {art.date_display}</figcaption></figure> : <div className="placeholder">Today’s photograph could not be displayed. Please refresh to try again.</div>}
         <p className="lead">Spend 30 seconds looking. Don’t decide whether you like it yet.</p>
         <div className="questions">{dailyLesson.prompts.map((p, i) => <article key={p}><b>0{i + 1}</b><span>{p}</span></article>)}</div>
         {!revealed && <button className="primary" onClick={() => setRevealed(true)}>Reveal today’s lesson</button>}
