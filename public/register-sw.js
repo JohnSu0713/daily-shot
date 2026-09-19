@@ -4,7 +4,7 @@ if ("serviceWorker" in navigator) {
 
   async function refreshDeployment() {
     try {
-      const registration = await navigator.serviceWorker.register("/daily-shot/sw.js?v=9", {
+      const registration = await navigator.serviceWorker.register("/daily-shot/sw.js?v=10", {
         scope: "/daily-shot/",
         updateViaCache: "none"
       });
