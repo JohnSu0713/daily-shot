@@ -97,7 +97,19 @@ test("PWA shell and source link are present", async ({ page, request }) => {
   const body = await manifest.json();
   expect(body.name).toContain("Daily Shot");
   expect(body.display).toBe("standalone");
+  expect(body.shortcuts.some((shortcut: { url: string }) => shortcut.url.includes("tab=journal"))).toBeTruthy();
+
+  const serviceWorker = await request.get("/daily-shot/sw.js");
+  expect(serviceWorker.ok()).toBeTruthy();
+  expect(await serviceWorker.text()).toContain("daily-shot-v9");
 
   await expect(page.locator('a:has-text("Source")')).toHaveAttribute("href", /commons\.wikimedia\.org/);
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/daily-shot/manifest.webmanifest");
+});
+
+
+test("journal shortcut opens the journal directly", async ({ page }) => {
+  await page.goto("/daily-shot/?tab=journal");
+  await expect(page.locator(".journal-title h1")).toContainText("Learning");
+  await expect(page.locator(".rhythm-card")).toBeVisible();
 });
