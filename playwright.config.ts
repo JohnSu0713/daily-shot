@@ -9,6 +9,7 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:4173",
     trace: "retain-on-failure",
+    serviceWorkers: "block",
   },
   webServer: {
     command: "rm -rf .e2e-site && mkdir -p .e2e-site/daily-shot && cp -R out/. .e2e-site/daily-shot/ && python3 -m http.server 4173 --directory .e2e-site",
