@@ -5,6 +5,7 @@ import { CURATED_PHOTOGRAPHS, getDailyPhotograph, localDateKey } from "../lib/ar
 import { getLesson } from "../lib/content";
 import { Locale, UI, localizeLesson } from "../lib/i18n";
 import { loadPracticeShot, removePracticeShot, savePracticeShot } from "../lib/vault";
+import { getPhotographer } from "../lib/photographers";
 
 type Theme = "light" | "dark";
 type StudyMode = "clean" | "thirds" | "mono" | "squint";
@@ -20,7 +21,7 @@ const EXTRA = {
     share:"Share", copied:"Copied", fieldProof:"YOUR FRAME", localOnly:"Private · stored only on this device", addShot:"Take / add your shot", replaceShot:"Replace shot", removeShot:"Remove",
     shotHelp:"Attach one frame from today’s assignment. It stays on this device and appears in your journal.", shotError:"Couldn’t save this image on the device.",
     rhythm:"7-DAY RHYTHM", thisWeek:"this week", yourShot:"Your practice frame", noNote:"No note yet", shareText:"Today’s Daily Shot",
-    captured:"Observation captured", glance:"Tap where your eye landed first", glanceDone:"First glance saved · tap again to move it", explore:"Explore", exploreHint:"Swipe through the archive", archive:"MASTER ARCHIVE", swipe:"Swipe · use ← →", loadingNext:"Loading photograph"
+    captured:"Saved to journal", lessonTab:"Today’s concept", photographerTab:"Photographer background", aboutPhotographer:"ABOUT THE PHOTOGRAPHER", signature:"SIGNATURE APPROACH", otherWorks:"OTHER CLASSIC WORKS", glance:"Tap where your eye landed first", glanceDone:"First glance saved · tap again to move it", explore:"Explore", exploreHint:"Swipe through the archive", archive:"MASTER ARCHIVE", swipe:"Swipe · use ← →", loadingNext:"Loading photograph"
   },
   zh: {
     study:"觀看工具", clean:"原圖", thirds:"三分線", mono:"黑白", squint:"瞇眼看",
@@ -28,7 +29,7 @@ const EXTRA = {
     share:"分享", copied:"已複製", fieldProof:"你的畫面", localOnly:"私密 · 只儲存在這台裝置", addShot:"拍攝 / 加入你的照片", replaceShot:"更換照片", removeShot:"移除",
     shotHelp:"把今天作業的一張照片放進來。照片只存在這台裝置，並會出現在學習日誌。", shotError:"無法在這台裝置上儲存照片。",
     rhythm:"7 日節奏", thisWeek:"本週完成", yourShot:"你的練習作品", noNote:"還沒有筆記", shareText:"今天的 Daily Shot",
-    captured:"已記下第一眼觀察", glance:"點一下你第一眼被吸住的位置", glanceDone:"第一眼已記下 · 再點可調整", explore:"探索", exploreHint:"左右滑動瀏覽名作", archive:"名作探索", swipe:"左右滑 · 也可用 ← →", loadingNext:"正在載入作品"
+    captured:"✓ 已存入日誌", lessonTab:"今日概念", photographerTab:"攝影背景", aboutPhotographer:"攝影師介紹", signature:"擅長手法", otherWorks:"其他經典作品", glance:"點一下你第一眼被吸住的位置", glanceDone:"第一眼已記下 · 再點可調整", explore:"探索", exploreHint:"左右滑動瀏覽名作", archive:"名作探索", swipe:"左右滑 · 也可用 ← →", loadingNext:"正在載入作品"
   }
 } as const;
 
@@ -86,6 +87,7 @@ export default function Home() {
   const [theme, setTheme] = useState<Theme>("light");
   const [tab, setTab] = useState<"today" | "explore" | "journal">("today");
   const [revealed, setRevealed] = useState(false);
+  const [lessonTab, setLessonTab] = useState<"concept" | "background">("concept");
   const [revealedNote, setRevealedNote] = useState("");
   const [imageIndex, setImageIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -109,6 +111,7 @@ export default function Home() {
   const t = UI[locale];
   const x = EXTRA[locale];
   const lesson = localizeLesson(baseLesson, locale);
+  const photographer = getPhotographer(today.artwork.artist);
   const keywordMatches = useMemo(() => {
     const source = normalize(revealedNote);
     return lesson.keywords.map((keyword) => ({
@@ -240,8 +243,13 @@ export default function Home() {
     localStorage.setItem(`daily-shot:focus:${today.dateKey}`, JSON.stringify(point));
   };
   const revealLesson = () => {
-    setRevealedNote(note.trim());
+    const capturedNote = note.trim();
+    setRevealedNote(capturedNote);
     setRevealed(true);
+    const entry: JournalEntry = { date:today.dateKey, artwork:today.artwork.title, artist:today.artwork.artist, concept:lesson.concept, note:capturedNote, shot:Boolean(practiceShotUrl) };
+    const next = [entry, ...journal.filter((item) => item.date !== today.dateKey)].sort((a,b) => b.date.localeCompare(a.date));
+    localStorage.setItem(JOURNAL_KEY, JSON.stringify(next));
+    setJournal(next);
     window.setTimeout(() => document.getElementById("today-lesson")?.scrollIntoView({ behavior:"smooth", block:"start" }), 60);
   };
   const saveToday = () => {
@@ -335,13 +343,9 @@ export default function Home() {
         <div className="reflection-foot"><span>{note.length}/400</span>{revealed ? <span className="captured">✓ {x.captured}</span> : <button className="reveal-note-button" onClick={revealLesson}>{t.reveal} <span>↓</span></button>}</div>
       </section>
 
-      <section className="observe">
-        <div className="observe-head"><p>{t.observe}</p><button className="timer-button" onClick={startTimer} disabled={timerRunning}>{timerRunning ? `${seconds}s` : t.startLook}</button></div>
-        <div className="questions">{lesson.prompts.map((prompt, index) => <article key={prompt}><b>0{index + 1}</b><span>{prompt}</span></article>)}</div>
-        {!revealed && <button className="primary wide" onClick={revealLesson}>{t.reveal}<span>↓</span></button>}
-      </section>
-
       {revealed && <section className="lesson" id="today-lesson">
+        <div className="lesson-tabs" role="tablist"><button className={lessonTab === "concept" ? "active" : ""} onClick={() => setLessonTab("concept")}>{x.lessonTab}</button><button className={lessonTab === "background" ? "active" : ""} onClick={() => setLessonTab("background")}>{x.photographerTab}</button></div>
+        {lessonTab === "concept" ? <>
         <div className="lesson-grid"><div><div className="eyebrow">{t.concept}</div><h2>{lesson.concept}</h2></div><div className="lesson-copy"><p>{lesson.intro}</p><blockquote>{lesson.takeaway}</blockquote></div></div>
 
         <div className="keyword-section">
@@ -358,6 +362,11 @@ export default function Home() {
         </div>
 
         <div className="lesson-complete"><button className={completedToday ? "complete-button done" : "complete-button"} onClick={saveToday}>{completedToday ? t.saved : t.complete}</button></div>
+        </> : photographer ? <div className="photographer-background">
+          <div className="photographer-hero"><div className="eyebrow">{x.aboutPhotographer}</div><h2>{photographer.name}</h2><p>{locale === "zh" ? photographer.zhBio : photographer.enBio}</p></div>
+          <div className="photographer-detail"><div className="eyebrow">{x.signature}</div><p>{locale === "zh" ? photographer.zhStyle : photographer.enStyle}</p></div>
+          <div className="photographer-works"><div className="eyebrow">{x.otherWorks}</div><div className="work-cards">{photographer.works.map((work, index) => <article key={work}><span>0{index + 1}</span><h3>{work}</h3></article>)}</div></div>
+        </div> : null}
       </section>}
     </> : tab === "explore" ? <section className="explore-view">
       <div className="explore-head">
