@@ -1,4 +1,4 @@
-const CACHE='daily-shot-v3';
+const CACHE='daily-shot-v4';
 const BASE='/daily-shot/';
 const SHELL=[BASE,BASE+'manifest.webmanifest',BASE+'icon.svg'];
 
@@ -18,11 +18,9 @@ self.addEventListener('activate',event=>{
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET') return;
   const url=new URL(event.request.url);
-
-  // Do not intercept third-party artwork requests. Let the browser follow
-  // redirects and handle the remote image normally.
   if(url.origin!==self.location.origin) return;
 
+  // Network-first for app assets so new deployments are visible immediately.
   event.respondWith(
     fetch(event.request)
       .then(response=>{
