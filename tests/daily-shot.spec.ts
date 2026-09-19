@@ -21,6 +21,9 @@ test("daily learning flow persists into the journal", async ({ page }) => {
   await expect(page.locator(".caption-row strong")).not.toBeEmpty();
   await expect(page.getByLabel("STUDY THE FRAME")).toBeVisible();
 
+  await page.locator(".photo").click({ position: { x: 80, y: 80 } });
+  await expect(page.locator(".focus-marker")).toBeVisible();
+
   await page.getByRole("button", { name: "B&W", exact: true }).click();
   await expect(page.locator(".photo")).toHaveClass(/study-mono/);
   await page.getByRole("button", { name: "Thirds", exact: true }).click();
