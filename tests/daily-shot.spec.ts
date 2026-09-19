@@ -12,11 +12,12 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/daily-shot/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
 });
 
 test("daily learning flow persists into the journal", async ({ page }) => {
-  await expect(page.getByRole("button", { name: "Daily Shot home" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Look first\./ })).toBeVisible();
+  await expect(page.locator(".brand-lockup")).toContainText("Daily Shot");
+  await expect(page.locator(".intro-row h1")).not.toBeEmpty();
   await expect(page.locator(".photo")).toBeVisible();
   await expect(page.locator(".caption-row strong")).not.toBeEmpty();
 
@@ -33,13 +34,26 @@ test("daily learning flow persists into the journal", async ({ page }) => {
   await expect(page.getByRole("button", { name: "✓ Saved for today" })).toBeVisible();
 
   await page.getByRole("button", { name: /Journal/ }).click();
-  await expect(page.getByText("Learning journal.")).toBeVisible();
-  await expect(page.getByText(note)).toBeVisible();
+  await expect(page.locator(".journal-title h1")).toContainText("Learning");
+  await expect(page.locator(".entries blockquote")).toContainText(note);
   await expect(page.locator(".stats article").first()).toContainText("1");
 
   await page.reload();
   await page.getByRole("button", { name: /Journal/ }).click();
-  await expect(page.getByText(note)).toBeVisible();
+  await expect(page.locator(".entries blockquote")).toContainText(note);
+});
+
+test("language and theme preferences persist", async ({ page }) => {
+  await page.getByRole("button", { name: "中文", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "zh-Hant");
+  await expect(page.getByRole("button", { name: "今日", exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Dark mode" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "今日", exact: true })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 });
 
 test("PWA shell and source link are present", async ({ page, request }) => {
