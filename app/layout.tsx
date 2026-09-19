@@ -11,5 +11,12 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en"><body>{children}<script src="/daily-shot/register-sw.js" defer /></body></html>;
+  return <html lang="en">
+    <head>
+      <link rel="preconnect" href="https://tile.loc.gov" />
+      <link rel="preconnect" href="https://upload.wikimedia.org" />
+      <link rel="dns-prefetch" href="//thumb.wikimedia.org" />
+    </head>
+    <body>{children}<script src="/daily-shot/register-sw.js" defer /></body>
+  </html>;
 }
