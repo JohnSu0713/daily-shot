@@ -40,3 +40,28 @@ button{cursor:pointer}button:focus-visible,a:focus-visible,textarea:focus-visibl
 .first-glance-hint.done{background:rgba(15,15,13,.62);color:rgba(255,255,255,.78)}
 .photo{touch-action:manipulation;cursor:crosshair}
 @media(max-width:720px){.first-glance-hint{font-size:9px;bottom:10px;max-width:calc(100% - 20px);overflow:hidden;text-overflow:ellipsis}.focus-marker{width:23px;height:23px}}
+
+
+/* --- Master archive / infinite explore --- */
+.explore-view{padding-bottom:10px}
+.explore-head{display:flex;align-items:end;justify-content:space-between;gap:36px;margin-bottom:20px}
+.explore-head h1{font-family:Georgia,"Songti TC",serif;font-size:clamp(44px,6.5vw,72px);font-weight:500;line-height:.95;letter-spacing:-.035em;margin:9px 0 0}
+.explore-head>p{margin:0;color:var(--muted);font-family:Georgia,"Songti TC",serif;font-size:16px;line-height:1.5;text-align:right}
+.explore-head>p small{display:block;font-family:Inter,ui-sans-serif,sans-serif;font-size:10px;letter-spacing:.06em;margin-top:5px}
+.explore-stage{position:relative;min-height:clamp(460px,72vh,760px);border-radius:24px;overflow:hidden;background:#11110f;display:grid;place-items:center;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.explore-photo{width:100%;height:100%;min-height:clamp(460px,72vh,760px);max-height:78vh;object-fit:contain;background:#11110f;opacity:0;transform:scale(.995);transition:opacity .22s ease,transform .32s ease}
+.explore-photo.loaded{opacity:1;transform:scale(1)}
+.explore-skeleton{background:linear-gradient(110deg,#161614 30%,#1c1c19 45%,#161614 60%);background-size:220% 100%;animation:explore-shimmer 1.5s linear infinite}
+@keyframes explore-shimmer{to{background-position:-220% 0}}
+.explore-nav{position:absolute;z-index:4;top:50%;transform:translateY(-50%);width:46px;height:46px;border:1px solid rgba(255,255,255,.14);border-radius:50%;background:rgba(10,10,9,.42);color:white;display:grid;place-items:center;font-family:Georgia,serif;font-size:33px;line-height:1;backdrop-filter:blur(10px);opacity:.62;transition:opacity .18s,background .18s}
+.explore-nav:hover,.explore-nav:focus-visible{opacity:1;background:rgba(10,10,9,.72)}.explore-nav.prev{left:14px}.explore-nav.next{right:14px}
+.explore-index{position:absolute;z-index:3;right:16px;bottom:14px;border-radius:999px;background:rgba(10,10,9,.55);color:rgba(255,255,255,.78);padding:7px 10px;font-size:10px;letter-spacing:.08em;backdrop-filter:blur(8px)}
+.explore-caption{display:flex;justify-content:space-between;gap:24px;padding:16px 2px 0}.explore-caption strong,.explore-caption span,.explore-caption small{display:block}.explore-caption strong{font-family:Georgia,"Songti TC",serif;font-size:22px;font-weight:500}.explore-caption span{font-size:12px;color:var(--muted);margin-top:3px}.explore-caption small{font-size:10px;color:var(--muted);margin-top:3px}.explore-caption a{font-size:11px;color:var(--ink);white-space:nowrap}
+.explore-concept{display:flex;align-items:baseline;gap:10px;border-top:1px solid var(--line);margin-top:17px;padding-top:13px}.explore-concept span{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}.explore-concept b{font-family:Georgia,"Songti TC",serif;font-size:16px;font-weight:500}
+@media(max-width:720px){
+  .explore-head{align-items:flex-start;margin-bottom:14px}.explore-head h1{font-size:46px}.explore-head>p{font-size:13px;max-width:150px}
+  .explore-stage{min-height:58vh;border-radius:18px}.explore-photo{min-height:58vh;max-height:68vh}
+  .explore-nav{width:38px;height:38px;font-size:28px;opacity:.34}.explore-nav.prev{left:8px}.explore-nav.next{right:8px}
+  .explore-caption{padding-top:12px}.explore-caption strong{font-size:19px}.explore-concept{align-items:flex-start;flex-direction:column;gap:4px}
+}
+@media(prefers-reduced-motion:reduce){.explore-photo{transition:none}.explore-skeleton{animation:none}}
