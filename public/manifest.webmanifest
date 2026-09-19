@@ -1,17 +1,23 @@
 {
+  "id": "/daily-shot/",
   "name": "Daily Shot — Learn to see",
   "short_name": "Daily Shot",
   "description": "A five-minute daily photography practice built around master photographs.",
+  "lang": "zh-Hant",
   "start_url": "/daily-shot/",
   "scope": "/daily-shot/",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
   "background_color": "#f4f1e9",
   "theme_color": "#f4f1e9",
+  "categories": ["education", "photo"],
+  "prefer_related_applications": false,
   "icons": [
     {"src":"/daily-shot/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ],
   "shortcuts": [
-    {"name":"Today","short_name":"Today","url":"/daily-shot/"}
+    {"name":"Today","short_name":"Today","description":"Open today’s photograph and lesson","url":"/daily-shot/"},
+    {"name":"Learning journal","short_name":"Journal","description":"Review your practice history","url":"/daily-shot/?tab=journal"}
   ]
 }
