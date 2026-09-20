@@ -37,16 +37,18 @@ test("daily learning flow persists into the journal", async ({ page }) => {
   await expect(page.locator(".thirds-grid")).toBeVisible();
   await page.getByRole("button", { name: "Clean", exact: true }).click();
 
-  await page.getByRole("button", { name: "Start 30s look" }).click();
-  await expect(page.getByText("Just look. No judging.")).toBeVisible();
-
   const note = "I noticed the close framing and her direct eyes.";
   await page.getByPlaceholder("One sentence is enough…").fill(note);
   await page.locator(".reflection .reveal-note-button").click();
 
-  await expect(page.getByText("TODAY’S CONCEPT")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Today’s concept" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Try it today" })).toBeVisible();
   await expect(page.locator(".keyword-section")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Journal/ })).toContainText("1");
+
+  await page.getByRole("button", { name: "Photographer background" }).click();
+  await expect(page.locator(".photographer-background")).toBeVisible();
+  await page.getByRole("button", { name: "Today’s concept" }).click();
 
   await page.getByRole("button", { name: "Complete today" }).click();
   await expect(page.getByRole("button", { name: "✓ Saved for today" })).toBeVisible();
