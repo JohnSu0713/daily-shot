@@ -48,7 +48,7 @@ test("daily learning flow persists into the journal", async ({ page }) => {
 
   await page.getByRole("button", { name: "Photographer background" }).click();
   await expect(page.locator(".photographer-background")).toBeVisible();
-  await expect(page.locator(".photographer-hero h3")).not.toBeEmpty();
+  await expect(page.locator(".photographer-hero h2")).not.toBeEmpty();
   await expect(page.locator(".photographer-hero p")).not.toBeEmpty();
   await page.getByRole("button", { name: "Today’s concept" }).evaluate((button: HTMLButtonElement) => button.click());
   await expect(page.locator(".photographer-background")).toBeHidden();
